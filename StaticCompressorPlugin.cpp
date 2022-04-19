@@ -10,7 +10,8 @@ constexpr int param_silence_lev_threshold = 2;
 constexpr int param_silence_time_threshold = 3;
 constexpr int param_buffer_peak_threshold = 4;
 constexpr int param_use_rms = 5;
-constexpr int num_params = 6;
+constexpr int param_max_gain = 6;
+constexpr int num_params = 7;
 
 class StaticCompressorPlugin : public FstAudioEffect
 {
@@ -28,6 +29,7 @@ public:
         params[param_level] = 0.1;
         params[param_silence_lev_threshold] = 0.1;
         params[param_silence_time_threshold] = 0.1;
+        params[param_max_gain] = 0;
         sync_params();
     }
 
@@ -47,6 +49,7 @@ public:
         compressor.silence_time_threshold = params[param_silence_time_threshold] * sampleRate / region_length_samples;
         compressor.buffer_peak_threshold = powf(10, (-60 * (1 - params[param_buffer_peak_threshold])) / 20);
         compressor.rec_use_rms = params[param_use_rms] > 0.5;
+        compressor.max_gain = params[param_max_gain] < 1e-6 ? 0 : powf(10, 60 *  params[param_max_gain] / 20);
         if (params[param_rec_status] <= 0.5)
         {
             compressor.sync();
@@ -74,6 +77,8 @@ public:
             return "Peak threshold";
         if (index == param_use_rms)
             return "Use RMS";
+        if (index == param_max_gain)
+            return "Limit initial gain";
         return "";
     }
 
@@ -87,12 +92,14 @@ public:
             return std::to_string(-60 * (1 - params[index])).substr(0, 4);
         if (index == param_silence_time_threshold)
             return std::to_string(params[index]).substr(0, 4);
+        if (index == param_max_gain)
+            return params[index] < 1e-6 ? "Off" : std::to_string(60 * params[index]).substr(0, 4);
         return "";
     }
 
     std::string getParamLabel(int index)
     {
-        if (index == param_level || index == param_silence_lev_threshold || index == param_buffer_peak_threshold)
+        if (index == param_level || index == param_silence_lev_threshold || index == param_buffer_peak_threshold || index == param_max_gain)
             return "dB";
         if (index == param_silence_time_threshold)
             return "sec";

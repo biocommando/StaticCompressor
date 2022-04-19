@@ -1,4 +1,0 @@
-; dlltool --base-file C:\Users\space\AppData\Local\Temp\cca27576.base --output-exp StaticCompressor.exp --dllname StaticCompressor.dll --output-def libPlugin.def --add-stdcall-alias --no-export-all-symbols --exclude-symbol=DllMainCRTStartup --def Plugin.def
-EXPORTS
-	main = VSTPluginMain @ 1
-	VSTPluginMain @ 2

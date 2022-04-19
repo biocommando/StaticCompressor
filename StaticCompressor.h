@@ -19,6 +19,7 @@ public:
     int silence_time_threshold = 2;
     float gain = 1;
     bool rec_use_rms = false;
+    float max_gain = 0;
 
     StaticCompressor()
     {
@@ -127,6 +128,10 @@ public:
                     for (int i = region_start; i <= region_end; i++)
                     {
                         gains[i] = 1 / peak_in_region;
+                        if (max_gain > 1e-6 && gains[i] > max_gain)
+                        {
+                            gains[i] = max_gain;
+                        }
                     }
                 }
                 max_idx = region_end > max_idx ? region_end : max_idx;
